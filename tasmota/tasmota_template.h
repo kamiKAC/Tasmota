@@ -1245,7 +1245,7 @@ enum SupportedModules {
   SONOFF_S31, ZENGGE_ZF_WF017, SONOFF_POW_R2, SONOFF_IFAN02, BLITZWOLF_BWSHP, SHELLY1, SHELLY2, PHILIPS, NEO_COOLCAM, ESP_SWITCH,
   OBI, TECKIN, APLIC_WDP303075, TUYA_DIMMER, GOSUND, ARMTRONIX_DIMMERS, SK03_TUYA, PS_16_DZ, TECKIN_US, MANZOKU_EU_4,
   OBI2, YTF_IR_BRIDGE, DIGOO, KA10, ZX2820, MI_DESK_LAMP, SP10, WAGA, SYF05, SONOFF_L1,
-  SONOFF_IFAN03, EXS_DIMMER, PWM_DIMMER, SONOFF_D1, SONOFF_ZB_BRIDGE,
+  SONOFF_IFAN03, OT_ADAPTER, EXS_DIMMER, PWM_DIMMER, SONOFF_D1, SONOFF_ZB_BRIDGE,
   MAXMODULE };
 
 #define USER_MODULE        255
@@ -1258,7 +1258,7 @@ const char kModuleNames[] PROGMEM =
   "Sonoff S31|Zengge WF017|Sonoff Pow R2|Sonoff iFan02|BlitzWolf SHP|Shelly 1|Shelly 2|Xiaomi Philips|Neo Coolcam|ESP Switch|"
   "OBI Socket|Teckin|AplicWDP303075|Tuya MCU|Gosund SP1 v23|ARMTR Dimmer|SK03 Outdoor|PS-16-DZ|Teckin US|Manzoku strip|"
   "OBI Socket 2|YTF IR Bridge|Digoo DG-SP202|KA10|Luminea ZX2820|Mi Desk Lamp|SP10|WAGA CHCZ02MB|SYF05|Sonoff L1|"
-  "Sonoff iFan03|EXS Dimmer|PWM Dimmer|Sonoff D1|Sonoff ZbBridge"
+  "Sonoff iFan03|OpenTherm Adapter|EXS Dimmer|PWM Dimmer|Sonoff D1|Sonoff ZbBridge"
   ;
 
 const uint8_t kModuleNiceList[] PROGMEM = {
@@ -1360,7 +1360,10 @@ const uint8_t kModuleNiceList[] PROGMEM = {
   SYF05,
   YTF_IR_BRIDGE,
   WITTY,               // Development Devices
-  WEMOS
+  WEMOS,
+#ifdef USE_OPENTHERM
+  OT_ADAPTER,
+#endif
 };
 
 enum SupportedTemplates8285 {
@@ -1375,7 +1378,7 @@ enum SupportedTemplates8285 {
   TMP_MAXMODULE_8285 };
 
 enum SupportedTemplates8266 {
-  TMP_WEMOS = TMP_MAXMODULE_8285, TMP_SONOFF_4CH, TMP_SONOFF_T12, TMP_SONOFF_T13, TMP_SONOFF_DUAL_R2, TMP_SONOFF_IFAN03,
+  TMP_WEMOS = TMP_MAXMODULE_8285, TMP_SONOFF_4CH, TMP_SONOFF_T12, TMP_SONOFF_T13, TMP_SONOFF_DUAL_R2, TMP_SONOFF_IFAN03, TMP_OT_ADAPTER,
   TMP_MAXMODULE_8266 };
 
 const uint8_t kModuleTemplateList[MAXMODULE] PROGMEM = {
@@ -1450,6 +1453,7 @@ const uint8_t kModuleTemplateList[MAXMODULE] PROGMEM = {
   TMP_SYF05,
   TMP_SONOFF_DUAL,      // SONOFF_L1
   TMP_SONOFF_IFAN03,
+  TMP_OT_ADAPTER,
   TMP_EXS_DIMMER,
   TMP_PWM_DIMMER,
   TMP_SONOFF_DUAL,      // SONOFF_D1
@@ -2264,7 +2268,7 @@ const mytmplt8266 kModules8266[TMP_MAXMODULE_8285] PROGMEM = {
     0, 0, 0
   },
   {                     // MANZOKU_EU_4 - "MANZOKU" labeled power strip, EU version
-                        // https://www.amazon.de/Steckdosenleiste-AOFO-Mehrfachsteckdose-Ãœberspannungsschutz-Sprachsteuerung/dp/B07GBSD11P/
+                        // https://www.amazon.de/Steckdosenleiste-AOFO-Mehrfachsteckdose-Ă�Ĺ“berspannungsschutz-Sprachsteuerung/dp/B07GBSD11P/
                         // https://www.amazon.de/Steckdosenleiste-Geekbes-USB-Anschluss-Kompatibel-gesteuert/dp/B078W23BW9/
     0,                  // GPIO00
     0,                  // GPIO01 Serial RXD
@@ -2637,6 +2641,30 @@ const mytmplt8285 kModules8285[TMP_MAXMODULE_8266 - TMP_WEMOS] PROGMEM = {
     GPI8_REL2,          // GPIO14 WIFI_O1 Relay 2 (0 = Off, 1 = On) controlling the fan
     GPI8_REL4,          // GPIO15 WIFI_O3 Relay 4 (0 = Off, 1 = On) controlling the fan
     0, 0
+  },
+  {                     // OT_ADAPTER - OpenTherm Adapter (ESP8266)
+    GPI8_USER,          // GPIO00 User
+	GPI8_TXD,           // GPIO01 ESP_TXD Serial
+	GPI8_LED1_INV,      // GPIO02 Blue Led (0 = On, 1 = Off) - Link and Power status
+	GPI8_RXD,          	// GPIO03 ESP_RXD Serial
+	GPI8_BOILER_OT_TX,  // GPIO04 OpenTherm Boiler TX pin
+	GPI8_BOILER_OT_RX,  // GPIO05 OpenTherm Boiler RX pin
+                        // GPIO06 (SD_CLK   Flash)
+                        // GPIO07 (SD_DATA0 Flash QIO/DIO/DOUT)
+                        // GPIO08 (SD_DATA1 Flash QIO/DIO/DOUT)
+	GPI8_USER,          // GPIO09 (SD_DATA2 Flash QIO or ESP8285)
+	GPI8_USER,          // GPIO10 (SD_DATA3 Flash QIO or ESP8285)
+	                    // GPIO11 (SD_CMD   Flash)
+	GPI8_USER,			// GPIO12
+	GPI8_USER,			// GPIO13
+#ifdef USE_DS18x20
+    GPI8_DSB,           // GPIO14 DS18B20 sensor
+#else
+    GPI8_USER,          // GPIO14 Optional sensor
+#endif
+	GPI8_USER,          // GPIO15 connected to IO15 pad, also used for logging
+	GPI8_USER,          // GPIO16
+	GPI8_USER			// GPIO17
   }
 };
 

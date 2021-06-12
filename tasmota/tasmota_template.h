@@ -2647,8 +2647,8 @@ const mytmplt8285 kModules8285[TMP_MAXMODULE_8266 - TMP_WEMOS] PROGMEM = {
 	GPI8_TXD,           // GPIO01 ESP_TXD Serial
 	GPI8_LED1_INV,      // GPIO02 Blue Led (0 = On, 1 = Off) - Link and Power status
 	GPI8_RXD,          	// GPIO03 ESP_RXD Serial
-	GPI8_BOILER_OT_TX,  // GPIO04 OpenTherm Boiler TX pin
-	GPI8_BOILER_OT_RX,  // GPIO05 OpenTherm Boiler RX pin
+	GPI8_BOILER_OT_RX,  // GPIO04 OpenTherm Boiler RX pin
+	GPI8_BOILER_OT_TX,  // GPIO05 OpenTherm Boiler TX pin
                         // GPIO06 (SD_CLK   Flash)
                         // GPIO07 (SD_DATA0 Flash QIO/DIO/DOUT)
                         // GPIO08 (SD_DATA1 Flash QIO/DIO/DOUT)

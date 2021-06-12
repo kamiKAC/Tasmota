@@ -155,6 +155,14 @@ OpenThermCommand sns_opentherm_commands[] = {
      .m_ot_make_request = sns_opentherm_get_generic_float,
      .m_ot_parse_response = sns_opentherm_parse_generic_float,
      .m_ot_appent_telemetry = sns_opentherm_tele_generic_float},
+    {// Read Water pressure
+     .m_command_name = "PRES",
+     .m_command_code = (uint8_t)OpenThermMessageID::CHPressure,
+     .m_flags = 0,
+     .m_results = {{.m_u8 = 0}, {.m_u8 = 0}},
+     .m_ot_make_request = sns_opentherm_get_generic_float,
+     .m_ot_parse_response = sns_opentherm_parse_water_pressure,
+     .m_ot_appent_telemetry = sns_opentherm_tele_generic_float},
 
 };
 
@@ -354,6 +362,12 @@ void sns_opentherm_parse_flame_modulation(struct OpenThermCommandT *self, struct
 {
     self->m_results[0].m_float = OpenTherm::getFloat(response);
     boilerStatus->m_flame_modulation_read = self->m_results[0].m_float;
+}
+
+void sns_opentherm_parse_water_pressure(struct OpenThermCommandT *self, struct OT_BOILER_STATUS_T *boilerStatus, unsigned long response)
+{
+    self->m_results[0].m_float = OpenTherm::getFloat(response);
+    boilerStatus->m_water_pressure_read = self->m_results[0].m_float;
 }
 
 void sns_opentherm_parse_boiler_temperature(struct OpenThermCommandT *self, struct OT_BOILER_STATUS_T *boilerStatus, unsigned long response)

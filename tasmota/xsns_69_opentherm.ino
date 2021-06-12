@@ -104,6 +104,8 @@ typedef struct OT_BOILER_STATUS_T
     float m_flame_modulation_read;
     // Boiler Temperature
     float m_boiler_temperature_read;
+    // Water Pressure
+    float m_water_pressure_read;
 
     // Boiler desired values
     float m_boilerSetpoint;
@@ -154,6 +156,7 @@ void sns_opentherm_init_boiler_status()
     sns_ot_boiler_status.m_oem_diag_code = 0;
     sns_ot_boiler_status.m_hotWaterSetpoint_read = 0;
     sns_ot_boiler_status.m_flame_modulation_read = 0;
+    sns_ot_boiler_status.m_water_pressure_read = 0;
     sns_ot_boiler_status.m_boiler_temperature_read = 0;
 }
 
@@ -260,6 +263,9 @@ void sns_opentherm_stat(bool json)
 
         WSContentSend_P(PSTR("{s}Flame Modulation{m}%d{e}"),
                         (int)sns_ot_boiler_status.m_flame_modulation_read);
+
+        WSContentSend_P(PSTR("{s}Water Pressure{m}%d{e}"),
+                        (int)sns_ot_boiler_status.m_water_pressure_read);
 
         WSContentSend_P(PSTR("{s}Boiler Temp/Setpnt{m}%d / %d{e}"),
                         (int)sns_ot_boiler_status.m_boiler_temperature_read,
@@ -462,15 +468,20 @@ uint8_t sns_opentherm_read_flags(char *data, uint32_t len)
 // and "ot_ch" is "1", boiler will keep heating
 #define D_CMND_SET_CENTRAL_HEATING_ENABLED "ch"
 
+// Get/Set boiler status m_enableHotWater value. It's equivalent of the EnableHotWater settings
+// flag value, however, this command does not update the settings.
+#define D_CMND_SET_HOT_WATER_ENABLED "dhw"
+
 const char kOpenThermCommands[] PROGMEM = D_PRFX_OTHERM "|" D_CMND_OTHERM_BOILER_SETPOINT "|" D_CMND_OTHERM_DHW_SETPOINT
-    "|" D_CMND_OTHERM_SAVE_SETTINGS "|" D_CMND_OTHERM_FLAGS "|" D_CMND_SET_CENTRAL_HEATING_ENABLED;
+    "|" D_CMND_OTHERM_SAVE_SETTINGS "|" D_CMND_OTHERM_FLAGS "|" D_CMND_SET_CENTRAL_HEATING_ENABLED "|" D_CMND_SET_HOT_WATER_ENABLED;
 
 void (*const OpenThermCommands[])(void) PROGMEM = {
     &sns_opentherm_boiler_setpoint_cmd,
     &sns_opentherm_hot_water_setpoint_cmd,
     &sns_opentherm_save_settings_cmd,
     &sns_opentherm_flags_cmd,
-    &sns_opentherm_set_central_heating_cmd};
+    &sns_opentherm_set_central_heating_cmd,
+    &sns_opentherm_set_hot_water_cmd};
 
 void sns_opentherm_cmd(void) { }
 void sns_opentherm_boiler_setpoint_cmd(void)
@@ -536,6 +547,16 @@ void sns_opentherm_set_central_heating_cmd(void)
         sns_ot_boiler_status.m_enableCentralHeating = atoi(XdrvMailbox.data);
     }
     ResponseCmndNumber(sns_ot_boiler_status.m_enableCentralHeating ? 1 : 0);
+}
+
+void sns_opentherm_set_hot_water_cmd(void)
+{
+    bool query = strlen(XdrvMailbox.data) == 0;
+    if (!query)
+    {
+        sns_ot_boiler_status.m_enableHotWater = atoi(XdrvMailbox.data);
+    }
+    ResponseCmndNumber(sns_ot_boiler_status.m_enableHotWater ? 1 : 0);
 }
 
 /*********************************************************************************************\

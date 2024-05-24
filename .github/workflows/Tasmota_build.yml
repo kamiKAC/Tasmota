@@ -14,6 +14,7 @@ jobs:
     - name: Use latest Tasmota development
       run: |
         git config --local user.name "Platformio BUILD"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git switch -c work
         git remote add -f Tasmota "https://github.com/arendst/Tasmota.git"
         git merge Tasmota/development --allow-unrelated-histories

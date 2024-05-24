@@ -18,7 +18,7 @@ jobs:
         git config --local user.name "Platformio BUILD"
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git switch -c work
-        git remote add -f Tasmota "${{ github.repositoryUrl }}"
+        git remote add -f Tasmota "$(echo ${{ github.repositoryUrl }} | sed s/git:/https:/)"
         git merge Tasmota/development --allow-unrelated-histories
     - name: Push Tasmota   # Push updates of latest Tasmota development to repo
       uses: ad-m/github-push-action@master

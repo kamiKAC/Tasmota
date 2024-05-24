@@ -1,8 +1,9 @@
-name: Build_firmware
+name: Build_firmware_development
 
 on:
   push:
     branches: development
+  workflow_dispatch:
 
 jobs:
   tasmota_pull:

@@ -1,4 +1,4 @@
-name: Build_firmware
+name: Build_firmware_master
 
 on:
   push:

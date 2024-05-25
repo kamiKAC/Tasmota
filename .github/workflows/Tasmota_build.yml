@@ -26,7 +26,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: 'development'
         force: true
-    - name: Prepare matrix
+    - name: Prepare matrix ESP8266
       id: prepare-matrix
       shell: bash
       run: |-
@@ -37,10 +37,22 @@ jobs:
         done
         environments="${environments::-2}]"
         echo "matrix={environments: $environments}" >>$GITHUB_OUTPUT
+    - name: Prepare matrix ESP32
+      id: prepare-matrix-esp32
+      shell: bash
+      run: |-
+        env_list=$(grep '\[env:tasmota.*\]' ./platformio_tasmota_env32.ini | sed -E 's/\[env:(tasmota32.*)\]/\1/' | sed -E 's/\r//' | tr '\n' ' ')
+        environments='['
+        for environment in $env_list; do
+          environments="${environments}\"${environment}\", "
+        done
+        environments="${environments::-2}]"
+        echo "matrix={environments: $environments}" >>$GITHUB_OUTPUT
     outputs:
       matrix: ${{ steps.prepare-matrix.outputs.matrix }}
+      matrix-esp32: ${{ steps.prepare-matrix-esp32.outputs.matrix }}
 
-  tasmota_build:
+  tasmota_build_esp8266:
     needs: tasmota_pull
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -61,7 +73,28 @@ jobs:
         with:
           name: firmware
           path: ./build_output
-  
+
+  tasmota_build_esp32:
+    needs: tasmota_pull
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix: ${{ fromJson(needs.tasmota_pull.outputs.matrix-esp32) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python
+        uses: actions/setup-python@v1
+      - name: Install dependencies
+        run: |
+          pip install -U platformio
+      - name: Run PlatformIO
+        run: |
+          platformio run -e ${{ matrix.environments }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: firmware
+          path: ./build_output
   # tasmota:
   #   needs: tasmota_pull
   #   runs-on: ubuntu-latest
@@ -1423,7 +1456,7 @@ jobs:
 
 
   Upload:
-    needs: [tasmota_pull, tasmota_build]
+    needs: [tasmota_pull, tasmota_build_esp8266, tasmota_build_esp32]
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:

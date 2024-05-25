@@ -634,7 +634,9 @@
   #define GUI_TRASH_FILE
   #define GUI_EDIT_FILE
 
+#define USE_I2C                                  // I2C using library wire (+10k code, 0k2 mem, 124 iram)
 #define USE_DS18x20
+#define USE_OPENTHERM
 
 #endif  // FIRMWARE_OPENTHERM
 

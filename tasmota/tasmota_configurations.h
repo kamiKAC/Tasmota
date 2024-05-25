@@ -614,6 +614,29 @@
 
 #endif  // SONOFF_ZIGBEEBRIDGE ******************************************************************
 
+/*********************************************************************************************\
+ * [tasmota-opentherm.bin]
+ * Provide an image with OpenTherm support
+\*********************************************************************************************/
+
+#ifdef FIRMWARE_OPENTHERM
+
+#undef CODE_IMAGE_STR
+#define CODE_IMAGE_STR "opentherm"
+
+#undef MODULE
+#define MODULE                 WEMOS             // [Module] Select default module from tasmota_template.h
+#undef FALLBACK_MODULE
+#define FALLBACK_MODULE        WEMOS             // [Module2] Select default module on fast reboot where USER_MODULE is user template
+
+#define USE_UFILESYS
+#define USE_SDCARD
+  #define GUI_TRASH_FILE
+  #define GUI_EDIT_FILE
+
+#define USE_DS18x20
+
+#endif  // FIRMWARE_OPENTHERM
 
 /*********************************************************************************************\
  * [tasmota-lite.bin]
